@@ -1,4 +1,5 @@
 name: Cloud check in action
+
 on:
   push:
     branches:
@@ -6,21 +7,21 @@ on:
       - dev
   watch:
     types: started
-  workflow_dispatch:
+  workflow_dispatch:  # 手动触发
   schedule:
-    - cron: '0 3,21 * * *'
+    - cron: '0 0 * * *'  # 每天00:00 UTC，对应北京时间早上8点
+
 jobs:
+  # 第一个任务：build-and-deploy-19071507010
   build-and-deploy-19071507010:
     runs-on: ubuntu-latest
     environment: 19071507010
     steps:
       - uses: actions/checkout@main
-
       - name: Setup Node.js environment
         uses: actions/setup-node@main
         with:
           node-version: 18
-
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
         with:
@@ -28,10 +29,8 @@ jobs:
           secrets_env: production
           prefix_prod: ""
           file_name_prod: .env
-
       - name: init
         run: npm install
-
       - name: run
         id: run
         uses: nick-fields/retry@master
@@ -39,7 +38,6 @@ jobs:
           timeout_minutes: 50
           max_attempts: 3
           command: npm start
-
       - name: Keep Running
         run: |
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
@@ -48,7 +46,6 @@ jobs:
           git pull --rebase --autostash
           git commit --allow-empty -m "Keep Running..."
           git push
-
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
         with:
@@ -57,17 +54,17 @@ jobs:
           retain_days: 0
           keep_minimum_runs: 50
 
+  # 第二个任务：build-and-deploy-bing7027，依赖第一个任务
   build-and-deploy-bing7027:
+    needs: build-and-deploy-19071507010  # 依赖第一个任务完成
     runs-on: ubuntu-latest
     environment: bing7027
     steps:
       - uses: actions/checkout@main
-
       - name: Setup Node.js environment
         uses: actions/setup-node@main
         with:
           node-version: 18
-
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
         with:
@@ -75,10 +72,8 @@ jobs:
           secrets_env: production
           prefix_prod: ""
           file_name_prod: .env
-
       - name: init
         run: npm install
-
       - name: run
         id: run
         uses: nick-fields/retry@master
@@ -86,7 +81,6 @@ jobs:
           timeout_minutes: 50
           max_attempts: 3
           command: npm start
-
       - name: Keep Running
         run: |
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
@@ -95,7 +89,6 @@ jobs:
           git pull --rebase --autostash
           git commit --allow-empty -m "Keep Running..."
           git push
-
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
         with:
@@ -104,17 +97,17 @@ jobs:
           retain_days: 0
           keep_minimum_runs: 50
 
+  # 第三个任务：build-and-deploy-user，依赖第二个任务
   build-and-deploy-user:
+    needs: build-and-deploy-bing7027  # 依赖第二个任务完成
     runs-on: ubuntu-latest
     environment: user
     steps:
       - uses: actions/checkout@main
-
       - name: Setup Node.js environment
         uses: actions/setup-node@main
         with:
           node-version: 18
-
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
         with:
@@ -122,10 +115,8 @@ jobs:
           secrets_env: production
           prefix_prod: ""
           file_name_prod: .env
-
       - name: init
         run: npm install
-
       - name: run
         id: run
         uses: nick-fields/retry@master
@@ -133,7 +124,6 @@ jobs:
           timeout_minutes: 50
           max_attempts: 3
           command: npm start
-
       - name: Keep Running
         run: |
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
@@ -142,7 +132,6 @@ jobs:
           git pull --rebase --autostash
           git commit --allow-empty -m "Keep Running..."
           git push
-
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
         with:
@@ -151,18 +140,17 @@ jobs:
           retain_days: 0
           keep_minimum_runs: 50
 
-
+  # 第四个任务：build-and-deploy-4，依赖第三个任务
   build-and-deploy-4:
+    needs: build-and-deploy-user  # 依赖第三个任务完成
     runs-on: ubuntu-latest
     environment: 4
     steps:
       - uses: actions/checkout@main
-
       - name: Setup Node.js environment
         uses: actions/setup-node@main
         with:
           node-version: 18
-
       - name: init secrets
         uses: shine1594/secrets-to-env-action@master
         with:
@@ -170,10 +158,8 @@ jobs:
           secrets_env: production
           prefix_prod: ""
           file_name_prod: .env
-
       - name: init
         run: npm install
-
       - name: run
         id: run
         uses: nick-fields/retry@master
@@ -181,7 +167,6 @@ jobs:
           timeout_minutes: 50
           max_attempts: 3
           command: npm start
-
       - name: Keep Running
         run: |
           git config --local user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
@@ -190,7 +175,6 @@ jobs:
           git pull --rebase --autostash
           git commit --allow-empty -m "Keep Running..."
           git push
-
       - name: Delete old workflow run
         uses: Mattraks/delete-workflow-runs@main
         with:
